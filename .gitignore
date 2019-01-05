@@ -3,3 +3,5 @@
 log*
 results*
 models
+.idea/
+cmake-build-debug/
