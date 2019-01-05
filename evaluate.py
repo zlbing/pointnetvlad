@@ -15,7 +15,7 @@ from sklearn.neighbors import KDTree
 
 #params
 parser = argparse.ArgumentParser()
-parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 1]')
+parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 1]')
 parser.add_argument('--positives_per_query', type=int, default=4, help='Number of potential positives in each training tuple [default: 2]')
 parser.add_argument('--negatives_per_query', type=int, default=12, help='Number of definite negatives in each training tuple [default: 20]')
 parser.add_argument('--batch_num_queries', type=int, default=3, help='Batch Size during training [default: 1]')
@@ -41,9 +41,9 @@ if not os.path.exists(RESULTS_FOLDER): os.mkdir(RESULTS_FOLDER)
 DATABASE_FILE= 'generating_queries/oxford_evaluation_database.pickle'
 QUERY_FILE= 'generating_queries/oxford_evaluation_query.pickle'
 
-LOG_DIR = 'log/'
+LOG_DIR = 'models/baseline'
 output_file= RESULTS_FOLDER +'results.txt'
-model_file= "model.ckpt"
+model_file= "model_baseline.ckpt"
 
 DATABASE_SETS= get_sets_dict(DATABASE_FILE)
 QUERY_SETS= get_sets_dict(QUERY_FILE)
