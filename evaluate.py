@@ -271,9 +271,9 @@ def get_recall(sess, ops, m, n):
 
     one_percent_recall=(one_percent_retrieved/float(num_evaluated))*100
     recall=(np.cumsum(recall)/float(num_evaluated))*100
-    print(recall)
-    print(np.mean(top1_similarity_score))
-    print(one_percent_recall)
+    print("[get_recall] recall=",recall)
+    print("[get_recall] mean=",np.mean(top1_similarity_score))
+    print("[get_recall] one_percent_recall=",one_percent_recall)
     return recall, top1_similarity_score, one_percent_recall 
 
 def get_similarity(sess, ops, m, n):
