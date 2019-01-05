@@ -141,32 +141,32 @@ def evaluate():
                 recall+=np.array(pair_recall)
                 count+=1
                 one_percent_recall.append(pair_opr)
-                print("[evaluate] m=",m,"n=",n)
-                print("[evaluate] pair_similarity=",pair_similarity)
+                print("[evaluate] m=",m,"n=", n)
+                print("[evaluate] pair_opr =", pair_opr)
+                print("[evaluate] pair_similarity=", pair_similarity)
                 for x in pair_similarity:
                     similarity.append(x)
 
-        print()
         ave_recall=recall/count
-        print(ave_recall)
+        print("[evaluate] ave_recall=",ave_recall)
 
         #print(similarity)
         average_similarity= np.mean(similarity)
-        print(average_similarity)
+        print("[evaluate] average_similarity=",average_similarity)
 
         ave_one_percent_recall= np.mean(one_percent_recall)
-        print(ave_one_percent_recall)
+        print("[evaluate] ave_one_percent_recall=",ave_one_percent_recall)
 
 
         #filename=RESULTS_FOLDER +'average_recall_oxford_netmax_sg(finetune_conv5).txt'
         with open(output_file, "w") as output:
-            output.write("[evaluate] Average Recall @N:\n")
+            output.write("Average Recall @N:\n")
             output.write(str(ave_recall))
             output.write("\n\n")
-            output.write("[evaluate] Average Similarity:\n")
+            output.write("Average Similarity:\n")
             output.write(str(average_similarity))
             output.write("\n\n")
-            output.write("[evaluate] Average Top 1% Recall:\n")
+            output.write("Average Top 1% Recall:\n")
             output.write(str(ave_one_percent_recall))
 
 
