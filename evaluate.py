@@ -130,8 +130,8 @@ def evaluate():
         for j in range(len(QUERY_SETS)):
             QUERY_VECTORS.append(get_latent_vectors(sess, ops, QUERY_SETS[j]))
 
-        print("[evaluate] DATABASE_VECTORS size=",DATABASE_VECTORS.shape)
-        print("[evaluate] QUERY_VECTORS size=",QUERY_VECTORS.shape)
+        print("[evaluate] DATABASE_VECTORS size=",len(DATABASE_VECTORS))
+        print("[evaluate] QUERY_VECTORS size=",len(QUERY_VECTORS))
 
         for m in range(len(QUERY_SETS)):
             for n in range(len(QUERY_SETS)):

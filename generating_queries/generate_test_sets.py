@@ -107,7 +107,8 @@ base_path= "../../benchmark_datasets/"
 folders=[]
 runs_folder = "oxford/"
 all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-index_list=[5,6,7,9,10,11,12,13,14,15,16,17,18,19,22,24,31,32,33,38,39,43,44]
+#index_list=[5,6,7,9,10,11,12,13,14,15,16,17,18,19,22,24,31,32,33,38,39,43,44]
+index_list=[5,6,7,9]
 print(len(index_list))
 for index in index_list:
 	folders.append(all_folders[index])
@@ -115,35 +116,35 @@ for index in index_list:
 print(folders)
 construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_20m/", "pointcloud_locations_20m.csv", p_dict["oxford"], "oxford")
 
-#For University Sector
-folders=[]
-runs_folder = "inhouse_datasets/"
-all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-uni_index=range(10,15)
-for index in uni_index:
-	folders.append(all_folders[index])
-
-print(folders)
-construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["university"], "university")
-
-#For Residential Area
-folders=[]
-runs_folder = "inhouse_datasets/"
-all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-res_index=range(5,10)
-for index in res_index:
-	folders.append(all_folders[index])
-
-print(folders)
-construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["residential"], "residential")
-
-#For Business District
-folders=[]
-runs_folder = "inhouse_datasets/"
-all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-bus_index=range(5)
-for index in bus_index:
-	folders.append(all_folders[index])
-
-print(folders)
-construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["business"], "business")
+##For University Sector
+#folders=[]
+#runs_folder = "inhouse_datasets/"
+#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
+#uni_index=range(10,15)
+#for index in uni_index:
+#	folders.append(all_folders[index])
+#
+#print(folders)
+#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["university"], "university")
+#
+##For Residential Area
+#folders=[]
+#runs_folder = "inhouse_datasets/"
+#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
+#res_index=range(5,10)
+#for index in res_index:
+#	folders.append(all_folders[index])
+#
+#print(folders)
+#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["residential"], "residential")
+#
+##For Business District
+#folders=[]
+#runs_folder = "inhouse_datasets/"
+#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
+#bus_index=range(5)
+#for index in bus_index:
+#	folders.append(all_folders[index])
+#
+#print(folders)
+#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["business"], "business")
