@@ -47,7 +47,7 @@ model_file= "model_baseline.ckpt"
 
 DATABASE_SETS= get_sets_dict(DATABASE_FILE)
 QUERY_SETS= get_sets_dict(QUERY_FILE)
-
+print(QUERY_SETS)
 global DATABASE_VECTORS
 DATABASE_VECTORS=[]
 
@@ -75,7 +75,7 @@ def evaluate():
 
     with tf.Graph().as_default():
         with tf.device('/gpu:'+str(GPU_INDEX)):
-            print("In Graph")
+            print("[evaluate]In Graph")
             query= placeholder_inputs(BATCH_NUM_QUERIES, 1, NUM_POINTS)
             positives= placeholder_inputs(BATCH_NUM_QUERIES, POSITIVES_PER_QUERY, NUM_POINTS)
             negatives= placeholder_inputs(BATCH_NUM_QUERIES, NEGATIVES_PER_QUERY, NUM_POINTS)
@@ -107,9 +107,8 @@ def evaluate():
         config.log_device_placement = False
         sess = tf.Session(config=config)
 
-
         saver.restore(sess, os.path.join(LOG_DIR, model_file))
-        print("Model restored.")
+        print("[evaluate] Model restored.")
 
         ops = {'query': query,
                'positives': positives,
@@ -123,11 +122,16 @@ def evaluate():
         count=0
         similarity=[]
         one_percent_recall=[]
+        print("[evaluate] DATABASE_SETS size=",len(DATABASE_SETS))
+        print("[evaluate] QUERY_SETS size=",len(QUERY_SETS))
         for i in range(len(DATABASE_SETS)):
             DATABASE_VECTORS.append(get_latent_vectors(sess, ops, DATABASE_SETS[i]))
 
         for j in range(len(QUERY_SETS)):
             QUERY_VECTORS.append(get_latent_vectors(sess, ops, QUERY_SETS[j]))
+
+        print("[evaluate] DATABASE_VECTORS size=",DATABASE_VECTORS.shape)
+        print("[evaluate] QUERY_VECTORS size=",QUERY_VECTORS.shape)
 
         for m in range(len(QUERY_SETS)):
             for n in range(len(QUERY_SETS)):
@@ -137,6 +141,8 @@ def evaluate():
                 recall+=np.array(pair_recall)
                 count+=1
                 one_percent_recall.append(pair_opr)
+                print("[evaluate] m=",m,"n=",n)
+                print("[evaluate] pair_similarity=",pair_similarity)
                 for x in pair_similarity:
                     similarity.append(x)
 
@@ -154,13 +160,13 @@ def evaluate():
 
         #filename=RESULTS_FOLDER +'average_recall_oxford_netmax_sg(finetune_conv5).txt'
         with open(output_file, "w") as output:
-            output.write("Average Recall @N:\n")
+            output.write("[evaluate] Average Recall @N:\n")
             output.write(str(ave_recall))
             output.write("\n\n")
-            output.write("Average Similarity:\n")
+            output.write("[evaluate] Average Similarity:\n")
             output.write(str(average_similarity))
             output.write("\n\n")
-            output.write("Average Top 1% Recall:\n")
+            output.write("[evaluate] Average Top 1% Recall:\n")
             output.write(str(ave_one_percent_recall))
 
 
@@ -225,7 +231,7 @@ def get_latent_vectors(sess, ops, dict_to_process):
 
     #q_output=np.array(q_output)
     #q_output=q_output.reshape(-1,q_output.shape[-1])
-    print(q_output.shape)
+    print("[get_latent_vectors] results shape=",q_output.shape)
     return q_output
 
 def get_recall(sess, ops, m, n):
@@ -278,7 +284,7 @@ def get_similarity(sess, ops, m, n):
     queries_output= QUERY_VECTORS[n]
 
     threshold= len(queries_output)
-    print(len(queries_output))
+    print("[get_similarity] queries_output shape=",queries_output.shape)
     database_nbrs = KDTree(database_output)
 
     similarity=[]
@@ -288,7 +294,7 @@ def get_similarity(sess, ops, m, n):
             q_sim= np.dot(q_output[i], database_output[indices[0][j]])
             similarity.append(q_sim)
     average_similarity=np.mean(similarity)
-    print(average_similarity)
+    print("[get_similarity] average_similarity=",average_similarity)
     return average_similarity 
 
 
