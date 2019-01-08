@@ -46,8 +46,8 @@ output_file= RESULTS_FOLDER +'results.txt'
 model_file= "model_baseline.ckpt"
 
 DATABASE_SETS= get_sets_dict(DATABASE_FILE)
+#print(DATABASE_SETS)
 QUERY_SETS= get_sets_dict(QUERY_FILE)
-print(QUERY_SETS)
 global DATABASE_VECTORS
 DATABASE_VECTORS=[]
 
