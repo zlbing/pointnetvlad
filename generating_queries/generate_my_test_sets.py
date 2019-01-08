@@ -7,26 +7,8 @@ import pickle
 import random
 
 #####For training and test data split#####
-x_width=150
-y_width=150
-
-#For Oxford
-p1=[5735712.768124,620084.402381]
-p2=[5735611.299219,620540.270327]
-p3=[5735237.358209,620543.094379]
-p4=[5734749.303802,619932.693364]   
-
-#For University Sector
-p5=[363621.292362,142864.19756]
-p6=[364788.795462,143125.746609]
-p7=[363597.507711,144011.414174]
-
-#For Residential Area
-p8=[360895.486453,144999.915143]
-p9=[362357.024536,144894.825301]
-p10=[361368.907155,145209.663042]
-
-p_dict={"oxford":[p1,p2,p3,p4], "university":[p5,p6,p7], "residential": [p8,p9,p10], "business":[]}
+x_width=20
+y_width=20
 
 def check_in_test_set(northing, easting, points, x_width, y_width):
 	in_test_set=False
@@ -93,59 +75,33 @@ def construct_query_and_database_sets(base_path, runs_folder, folders, pointclou
 				continue
 			for key in range(len(test_sets[j].keys())):
 				coor=np.array([[test_sets[j][key]["northing"],test_sets[j][key]["easting"]]])
-				index = tree.query_radius(coor, r=25)
+				index = tree.query_radius(coor, r=3)
 				#indices of the positive matches in database i of each query (key) in test set j
 				test_sets[j][key][i]=index[0].tolist()
 
 	output_to_file(database_sets, output_name+'_evaluation_database.pickle')
 	output_to_file(test_sets, output_name+'_evaluation_query.pickle')
 
-###Building database and query files for evaluation
+#For kaicheng
+p1=[0,0]
+p2=[78.8541,27.9149]
+p3=[-3.61771,92.393]
+p4=[-29.8497,14.4575]
+p_dict={"kaicheng":[p1,p2,p3,p4]}
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 base_path= "../../benchmark_datasets/"
 
 #For Oxford
 folders=[]
-runs_folder = "oxford/"
+runs_folder = "mydata/"
 all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
 #index_list=[5,6,7,9,10,11,12,13,14,15,16,17,18,19,22,24,31,32,33,38,39,43,44]
-index_list=[5,6,7,9]
+index_list=[0,1,2,3]
 print(len(index_list))
 for index in index_list:
 	folders.append(all_folders[index])
 
 print(folders)
-construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_20m/", "pointcloud_locations_20m.csv", p_dict["oxford"], "oxford")
-
-##For University Sector
-#folders=[]
-#runs_folder = "inhouse_datasets/"
-#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-#uni_index=range(10,15)
-#for index in uni_index:
-#	folders.append(all_folders[index])
-#
-#print(folders)
-#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["university"], "university")
-#
-##For Residential Area
-#folders=[]
-#runs_folder = "inhouse_datasets/"
-#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-#res_index=range(5,10)
-#for index in res_index:
-#	folders.append(all_folders[index])
-#
-#print(folders)
-#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["residential"], "residential")
-#
-##For Business District
-#folders=[]
-#runs_folder = "inhouse_datasets/"
-#all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
-#bus_index=range(5)
-#for index in bus_index:
-#	folders.append(all_folders[index])
-#
-#print(folders)
-#construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud_25m_25/", "pointcloud_centroids_25.csv", p_dict["business"], "business")
+construct_query_and_database_sets(base_path, runs_folder, folders, "/pointcloud/", "pose.csv", p_dict["kaicheng"], "kaicheng")
