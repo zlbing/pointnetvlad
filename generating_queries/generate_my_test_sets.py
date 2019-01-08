@@ -32,8 +32,8 @@ def construct_query_and_database_sets(base_path, runs_folder, folders, pointclou
 		print(folder)
 		df_database= pd.DataFrame(columns=['file','northing','easting'])
 		df_test= pd.DataFrame(columns=['file','northing','easting'])
-        df_locations_path = os.path.join(base_path,runs_folder,folder,filename)
-        print("df_locations_path=",df_locations_path)
+		df_locations_path= os.path.join(base_path,runs_folder,folder,filename)
+		print("df_locations_path=",df_locations_path)
 		df_locations= pd.read_csv(df_locations_path, sep=',')
 		# df_locations['timestamp']=runs_folder+folder+pointcloud_fols+df_locations['timestamp'].astype(str)+'.bin'
 		# df_locations=df_locations.rename(columns={'timestamp':'file'})
@@ -95,10 +95,10 @@ base_path= "../../benchmark_datasets/"
 
 #For Oxford
 folders=[]
-runs_folder = "mydata/"
+runs_folder = "kaicheng/"
 all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
 #index_list=[5,6,7,9,10,11,12,13,14,15,16,17,18,19,22,24,31,32,33,38,39,43,44]
-index_list=[0,1,2,3]
+index_list=[0,1]
 print(len(index_list))
 for index in index_list:
 	folders.append(all_folders[index])
