@@ -24,8 +24,7 @@ def get_sets_dict(filename):
 
 def load_pc_file(filename):
 	#returns Nx3 matrix
-	pc=np.fromfile(os.path.join(BASE_PATH,filename), dtype=np.float64)
-
+	pc=np.fromfile(os.path.join(BASE_PATH,filename), dtype=np.float32)
 	if(pc.shape[0]!= 4096*3):
 		print("Error in pointcloud shape")
 		return np.array([])
