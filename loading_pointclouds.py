@@ -32,6 +32,15 @@ def load_pc_file(filename):
 	pc=np.reshape(pc,(pc.shape[0]//3,3))
 	return pc
 
+def scale_pc(pc):
+	max_value = [60]
+	min_value = [-60]
+	pc=np.reshape(pc,(pc.shape[0]*pc.shape[1]))
+	for k in range(len(pc)):
+		pc[k]=((pc[k]-min_value[0])/(max_value[0] - min_value[0]))*2 -1
+	pc=np.reshape(pc,(pc.shape[0]//3,3))
+	return pc
+
 def load_pc_files(filenames):
 	pcs=[]
 	for filename in filenames:
@@ -39,6 +48,7 @@ def load_pc_files(filenames):
 		pc=load_pc_file(filename)
 		if(pc.shape[0]!=4096):
 			continue
+		pc = scale_pc(pc)###for my own dataset
 		pcs.append(pc)
 	pcs=np.array(pcs)
 	return pcs
