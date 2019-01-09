@@ -16,9 +16,9 @@ from sklearn.neighbors import KDTree
 #params
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 1]')
-parser.add_argument('--positives_per_query', type=int, default=4, help='Number of potential positives in each training tuple [default: 2]')
-parser.add_argument('--negatives_per_query', type=int, default=12, help='Number of definite negatives in each training tuple [default: 20]')
-parser.add_argument('--batch_num_queries', type=int, default=3, help='Batch Size during training [default: 1]')
+parser.add_argument('--positives_per_query', type=int, default=0, help='Number of potential positives in each training tuple [default: 4]')
+parser.add_argument('--negatives_per_query', type=int, default=0, help='Number of definite negatives in each training tuple [default: 12]')
+parser.add_argument('--batch_num_queries', type=int, default=1, help='Batch Size during training [default: 1]')
 parser.add_argument('--dimension', type=int, default=256)
 parser.add_argument('--decay_step', type=int, default=200000, help='Decay step for lr decay [default: 200000]')
 parser.add_argument('--decay_rate', type=float, default=0.7, help='Decay rate for lr decay [default: 0.8]')
@@ -82,20 +82,20 @@ def evaluate():
             eval_queries= placeholder_inputs(EVAL_BATCH_SIZE, 1, NUM_POINTS)
 
             is_training_pl = tf.placeholder(tf.bool, shape=())
-            print(is_training_pl)
+            print("is_training_pl=",is_training_pl)
 
             batch = tf.Variable(0)
             bn_decay = get_bn_decay(batch)
 
             with tf.variable_scope("query_triplets") as scope:
                 vecs= tf.concat([query, positives, negatives],1)
-                print(vecs)                
+                print("vecs=",vecs)                
                 out_vecs= forward(vecs, is_training_pl, bn_decay=bn_decay)
-                print(out_vecs)
+                print("out_vecs=",out_vecs)
                 q_vec, pos_vecs, neg_vecs= tf.split(out_vecs, [1,POSITIVES_PER_QUERY,NEGATIVES_PER_QUERY],1)
-                print(q_vec)
-                print(pos_vecs)
-                print(neg_vecs)
+                print("q_vec=",q_vec)
+                print("pose_vecs=",pos_vecs)
+                print("neg_vecs=",neg_vecs)
 
             saver = tf.train.Saver()
             
@@ -137,11 +137,11 @@ def evaluate():
             for n in range(len(QUERY_SETS)):
                 if(m==n):
                     continue
+                print("[evaluate] m=",m,"n=", n)
                 pair_recall, pair_similarity, pair_opr = get_recall(sess, ops, m, n)
                 recall+=np.array(pair_recall)
                 count+=1
                 one_percent_recall.append(pair_opr)
-                print("[evaluate] m=",m,"n=", n)
                 print("[evaluate] pair_opr =", pair_opr)
                 print("[evaluate] pair_similarity=", pair_similarity)
                 for x in pair_similarity:
@@ -181,6 +181,8 @@ def get_latent_vectors(sess, ops, dict_to_process):
         file_names=[]
         for index in file_indices:
             file_names.append(dict_to_process[index]["query"])
+        print("[get_latent_vectors] file_indices",file_indices)
+        print("[get_latent_vectors]file_names",file_names)
         queries=load_pc_files(file_names)
         # queries= np.expand_dims(queries,axis=1)
         q1=queries[0:BATCH_NUM_QUERIES]
@@ -194,7 +196,7 @@ def get_latent_vectors(sess, ops, dict_to_process):
         q3=np.reshape(q3,(BATCH_NUM_QUERIES,NEGATIVES_PER_QUERY,NUM_POINTS,3))
         feed_dict={ops['query']:q1, ops['positives']:q2, ops['negatives']:q3, ops['is_training_pl']:is_training}
         o1, o2, o3=sess.run([ops['q_vec'], ops['pos_vecs'], ops['neg_vecs']], feed_dict=feed_dict)
-        
+
         o1=np.reshape(o1,(-1,o1.shape[-1]))
         o2=np.reshape(o2,(-1,o2.shape[-1]))
         o3=np.reshape(o3,(-1,o3.shape[-1]))
@@ -209,6 +211,7 @@ def get_latent_vectors(sess, ops, dict_to_process):
 
     #handle edge case
     for q_index in range((len(train_file_idxs)//batch_num*batch_num),len(dict_to_process.keys())):
+        print("[get_latent_vectors edge case]q_index=",q_index)
         index=train_file_idxs[q_index]
         queries=load_pc_files([dict_to_process[index]["query"]])
         queries= np.expand_dims(queries,axis=1)
