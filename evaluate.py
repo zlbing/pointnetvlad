@@ -13,6 +13,8 @@ from loading_pointclouds import *
 from sklearn.neighbors import NearestNeighbors
 from sklearn.neighbors import KDTree
 
+from visualize import *
+
 #params
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 1]')
@@ -126,19 +128,25 @@ def evaluate():
         print("[evaluate] QUERY_SETS size=",len(QUERY_SETS))
         for i in range(len(DATABASE_SETS)):
             DATABASE_VECTORS.append(get_latent_vectors(sess, ops, DATABASE_SETS[i]))
+            print("DATABASE_SETS=", len(DATABASE_SETS[i]))
+        vector_output_file = RESULTS_FOLDER + "database.txt"
+        with open(vector_output_file, "w") as output:
+            output.write(DATABASE_VECTORS[0])
+        print("EEEEEEEEEEEEEEEEE")
 
         for j in range(len(QUERY_SETS)):
             QUERY_VECTORS.append(get_latent_vectors(sess, ops, QUERY_SETS[j]))
 
         print("[evaluate] DATABASE_VECTORS size=",len(DATABASE_VECTORS))
         print("[evaluate] QUERY_VECTORS size=",len(QUERY_VECTORS))
-
+        all_dataset_all_indices = []
         for m in range(len(QUERY_SETS)):
             for n in range(len(QUERY_SETS)):
                 if(m==n):
                     continue
                 print("[evaluate] m=",m,"n=", n)
-                pair_recall, pair_similarity, pair_opr = get_recall(sess, ops, m, n)
+                pair_recall, pair_similarity, pair_opr, all_indices = get_recall(sess, ops, m, n)
+                all_dataset_all_indices.append(all_indices)
                 recall+=np.array(pair_recall)
                 count+=1
                 one_percent_recall.append(pair_opr)
@@ -157,6 +165,54 @@ def evaluate():
         ave_one_percent_recall= np.mean(one_percent_recall)
         print("[evaluate] ave_one_percent_recall=",ave_one_percent_recall)
 
+        index = 0
+        for m in range(len(QUERY_SETS)):
+            threshold=max(int(round(len(DATABASE_VECTORS[m])/100.0)),1)
+            for n in range(len(QUERY_SETS)):
+                if(m==n):
+                    continue
+                all_indices = all_dataset_all_indices[index]
+                index = index+1
+
+                print("all_indices=",len(all_indices),"query size=",len(QUERY_SETS[n]))
+                for k in range(len(QUERY_SETS[n])):
+                    indices = all_indices[k]
+                    true_neighbors = QUERY_SETS[n][k][m]
+                    if(len(true_neighbors)==0):
+                        continue
+                    print("\n\nm=",m,"n=",n,"k=",k)
+                    if indices[0] in true_neighbors:
+                        print("query=",QUERY_SETS[n][k]["query"])
+                        print("true result database=",DATABASE_SETS[m][indices[0]]["query"])
+                        # fig = plt.figure()
+                        # query_point = load_pc_file(QUERY_SETS[n][k]["query"])
+                        # matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
+                        # loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
+                        # matplotVisual(loopup_false_database_point, 223,fig,"query true result"+DATABASE_SETS[m][indices[0]]["query"])
+                        # true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
+                        # matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
+                        # plt.show()
+                    else:
+                        print("query=",QUERY_SETS[n][k]["query"])
+                        print("indices=",indices)
+                        for kk in range(len(indices)):
+                            print("false result database=",DATABASE_SETS[m][indices[kk]]["query"])
+                            if(kk>5):
+                                break
+                        print("true_neighbors=",true_neighbors)
+                        for kk in range(len(true_neighbors)):
+                            print("true result database=",DATABASE_SETS[m][true_neighbors[kk]]["query"])
+
+                        if len(list(set(indices[0:threshold]).intersection(set(true_neighbors))))==0:
+                            ##figure wrong answer
+                            fig = plt.figure()
+                            query_point = load_pc_file(QUERY_SETS[n][k]["query"])
+                            matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
+                            loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
+                            matplotVisual(loopup_false_database_point, 223,fig,"query false result"+DATABASE_SETS[m][indices[0]]["query"])
+                            true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
+                            matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
+                            plt.show()
 
         #filename=RESULTS_FOLDER +'average_recall_oxford_netmax_sg(finetune_conv5).txt'
         with open(output_file, "w") as output:
@@ -181,8 +237,8 @@ def get_latent_vectors(sess, ops, dict_to_process):
         file_names=[]
         for index in file_indices:
             file_names.append(dict_to_process[index]["query"])
-        print("[get_latent_vectors] file_indices",file_indices)
-        print("[get_latent_vectors]file_names",file_names)
+        #print("[get_latent_vectors] file_indices",file_indices)
+        #print("[get_latent_vectors]file_names",file_names)
         queries=load_pc_files(file_names)
         # queries= np.expand_dims(queries,axis=1)
         q1=queries[0:BATCH_NUM_QUERIES]
@@ -253,16 +309,19 @@ def get_recall(sess, ops, m, n):
     top1_similarity_score=[]
     one_percent_retrieved=0
     threshold=max(int(round(len(database_output)/100.0)),1)
-
+    all_indices = []
     num_evaluated=0
     for i in range(len(queries_output)):
         true_neighbors= QUERY_SETS[n][i][m]
         if(len(true_neighbors)==0):
+            all_indices.append([])
             continue
         num_evaluated+=1
         distances, indices = database_nbrs.query(np.array([queries_output[i]]),k=num_neighbors)
+        all_indices.append(indices[0])
         for j in range(len(indices[0])):
             if indices[0][j] in true_neighbors:
+                #print("j=",j,"distance=",distances[0][j])
                 if(j==0):
                     similarity= np.dot(queries_output[i],database_output[indices[0][j]])
                     top1_similarity_score.append(similarity)
@@ -277,7 +336,7 @@ def get_recall(sess, ops, m, n):
     print("[get_recall] recall=",recall)
     print("[get_recall] mean=",np.mean(top1_similarity_score))
     print("[get_recall] one_percent_recall=",one_percent_recall)
-    return recall, top1_similarity_score, one_percent_recall 
+    return recall, top1_similarity_score, one_percent_recall, all_indices
 
 def get_similarity(sess, ops, m, n):
     global DATABASE_VECTORS
