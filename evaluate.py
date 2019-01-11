@@ -126,16 +126,25 @@ def evaluate():
         one_percent_recall=[]
         print("[evaluate] DATABASE_SETS size=",len(DATABASE_SETS))
         print("[evaluate] QUERY_SETS size=",len(QUERY_SETS))
+        for j in range(len(QUERY_SETS)):
+            QUERY_VECTORS.append(get_latent_vectors(sess, ops, QUERY_SETS[j]))
+
         for i in range(len(DATABASE_SETS)):
             DATABASE_VECTORS.append(get_latent_vectors(sess, ops, DATABASE_SETS[i]))
             print("DATABASE_SETS=", len(DATABASE_SETS[i]))
-        vector_output_file = RESULTS_FOLDER + "database.txt"
-        with open(vector_output_file, "w") as output:
-            output.write(DATABASE_VECTORS[0])
-        print("EEEEEEEEEEEEEEEEE")
 
         for j in range(len(QUERY_SETS)):
-            QUERY_VECTORS.append(get_latent_vectors(sess, ops, QUERY_SETS[j]))
+            vector_output_file = RESULTS_FOLDER +str(j) +"database.txt"
+            with open(vector_output_file, "w") as output:
+                for k in range(DATABASE_VECTORS[j].shape[0]):
+                    output.write(",".join(str(elem) for elem in DATABASE_VECTORS[j][k,:]) + "\n")
+            index_file = RESULTS_FOLDER+str(j) + "index.txt"
+            with open(index_file, "w") as output:
+                for k in range(len(DATABASE_SETS[j])):
+                    output.write(str(DATABASE_SETS[j][k]["query"]) + "\n")
+            
+        print("EEEEEEEEEEEEEEEEE")
+
 
         print("[evaluate] DATABASE_VECTORS size=",len(DATABASE_VECTORS))
         print("[evaluate] QUERY_VECTORS size=",len(QUERY_VECTORS))
@@ -165,54 +174,54 @@ def evaluate():
         ave_one_percent_recall= np.mean(one_percent_recall)
         print("[evaluate] ave_one_percent_recall=",ave_one_percent_recall)
 
-        index = 0
-        for m in range(len(QUERY_SETS)):
-            threshold=max(int(round(len(DATABASE_VECTORS[m])/100.0)),1)
-            for n in range(len(QUERY_SETS)):
-                if(m==n):
-                    continue
-                all_indices = all_dataset_all_indices[index]
-                index = index+1
-
-                print("all_indices=",len(all_indices),"query size=",len(QUERY_SETS[n]))
-                for k in range(len(QUERY_SETS[n])):
-                    indices = all_indices[k]
-                    true_neighbors = QUERY_SETS[n][k][m]
-                    if(len(true_neighbors)==0):
-                        continue
-                    print("\n\nm=",m,"n=",n,"k=",k)
-                    if indices[0] in true_neighbors:
-                        print("query=",QUERY_SETS[n][k]["query"])
-                        print("true result database=",DATABASE_SETS[m][indices[0]]["query"])
-                        # fig = plt.figure()
-                        # query_point = load_pc_file(QUERY_SETS[n][k]["query"])
-                        # matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
-                        # loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
-                        # matplotVisual(loopup_false_database_point, 223,fig,"query true result"+DATABASE_SETS[m][indices[0]]["query"])
-                        # true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
-                        # matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
-                        # plt.show()
-                    else:
-                        print("query=",QUERY_SETS[n][k]["query"])
-                        print("indices=",indices)
-                        for kk in range(len(indices)):
-                            print("false result database=",DATABASE_SETS[m][indices[kk]]["query"])
-                            if(kk>5):
-                                break
-                        print("true_neighbors=",true_neighbors)
-                        for kk in range(len(true_neighbors)):
-                            print("true result database=",DATABASE_SETS[m][true_neighbors[kk]]["query"])
-
-                        if len(list(set(indices[0:threshold]).intersection(set(true_neighbors))))==0:
-                            ##figure wrong answer
-                            fig = plt.figure()
-                            query_point = load_pc_file(QUERY_SETS[n][k]["query"])
-                            matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
-                            loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
-                            matplotVisual(loopup_false_database_point, 223,fig,"query false result"+DATABASE_SETS[m][indices[0]]["query"])
-                            true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
-                            matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
-                            plt.show()
+#        index = 0
+#        for m in range(len(QUERY_SETS)):
+#            threshold=max(int(round(len(DATABASE_VECTORS[m])/100.0)),1)
+#            for n in range(len(QUERY_SETS)):
+#                if(m==n):
+#                    continue
+#                all_indices = all_dataset_all_indices[index]
+#                index = index+1
+#
+#                print("all_indices=",len(all_indices),"query size=",len(QUERY_SETS[n]))
+#                for k in range(len(QUERY_SETS[n])):
+#                    indices = all_indices[k]
+#                    true_neighbors = QUERY_SETS[n][k][m]
+#                    if(len(true_neighbors)==0):
+#                        continue
+#                    print("\n\nm=",m,"n=",n,"k=",k)
+#                    if indices[0] in true_neighbors:
+#                        print("query=",QUERY_SETS[n][k]["query"])
+#                        print("true result database=",DATABASE_SETS[m][indices[0]]["query"])
+#                        # fig = plt.figure()
+#                        # query_point = load_pc_file(QUERY_SETS[n][k]["query"])
+#                        # matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
+#                        # loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
+#                        # matplotVisual(loopup_false_database_point, 223,fig,"query true result"+DATABASE_SETS[m][indices[0]]["query"])
+#                        # true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
+#                        # matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
+#                        # plt.show()
+#                    else:
+#                        print("query=",QUERY_SETS[n][k]["query"])
+#                        print("indices=",indices)
+#                        for kk in range(len(indices)):
+#                            print("false result database=",DATABASE_SETS[m][indices[kk]]["query"])
+#                            if(kk>5):
+#                                break
+#                        print("true_neighbors=",true_neighbors)
+#                        for kk in range(len(true_neighbors)):
+#                            print("true result database=",DATABASE_SETS[m][true_neighbors[kk]]["query"])
+#
+#                        if len(list(set(indices[0:threshold]).intersection(set(true_neighbors))))==0:
+#                            ##figure wrong answer
+#                            fig = plt.figure()
+#                            query_point = load_pc_file(QUERY_SETS[n][k]["query"])
+#                            matplotVisual(query_point, 221,fig, "query"+QUERY_SETS[n][k]["query"])
+#                            loopup_false_database_point = load_pc_file(DATABASE_SETS[m][indices[0]]["query"])
+#                            matplotVisual(loopup_false_database_point, 223,fig,"query false result"+DATABASE_SETS[m][indices[0]]["query"])
+#                            true_database_point = load_pc_file(DATABASE_SETS[m][true_neighbors[0]]["query"])
+#                            matplotVisual(true_database_point, 224, fig, "true result"+DATABASE_SETS[m][true_neighbors[0]]["query"])
+#                            plt.show()
 
         #filename=RESULTS_FOLDER +'average_recall_oxford_netmax_sg(finetune_conv5).txt'
         with open(output_file, "w") as output:
@@ -224,6 +233,8 @@ def evaluate():
             output.write("\n\n")
             output.write("Average Top 1% Recall:\n")
             output.write(str(ave_one_percent_recall))
+            for k in range(len(DATABASE_SETS)):
+                output.write("database["+str(k)+"]="+str(DATABASE_SETS[k][0]["query"])+"\n")
 
 
 def get_latent_vectors(sess, ops, dict_to_process):
