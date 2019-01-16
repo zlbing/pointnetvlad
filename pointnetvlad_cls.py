@@ -71,7 +71,7 @@ def forward(point_cloud, is_training, bn_decay=None):
 
     #normalize to have norm 1
     output = tf.nn.l2_normalize(output,1)
-    output =  tf.reshape(output,[batch_num_queries,num_pointclouds_per_query,OUTPUT_DIM])
+    output =  tf.reshape(output,[batch_num_queries,num_pointclouds_per_query,OUTPUT_DIM],"output")
 
     return output
 

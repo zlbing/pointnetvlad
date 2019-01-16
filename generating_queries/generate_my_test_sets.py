@@ -39,7 +39,7 @@ def construct_query_and_database_sets(base_path, runs_folder, folders, pointclou
 		# df_locations=df_locations.rename(columns={'timestamp':'file'})
 		for index, row in df_locations.iterrows():
 			#entire business district is in the test set
-			if(output_name=="business"):
+			if(output_name=="kaicheng"):
 				df_test=df_test.append(row, ignore_index=True)
 			elif(check_in_test_set(row['northing'], row['easting'], p, x_width, y_width)):
 				df_test=df_test.append(row, ignore_index=True)
@@ -60,7 +60,7 @@ def construct_query_and_database_sets(base_path, runs_folder, folders, pointclou
 		df_locations=df_locations.rename(columns={'timestamp':'file'})
 		for index,row in df_locations.iterrows():				
 			#entire business district is in the test set
-			if(output_name=="business"):
+			if(output_name=="kaicheng"):
 				test[len(test.keys())]={'query':row['file'],'northing':row['northing'],'easting':row['easting']}
 			elif(check_in_test_set(row['northing'], row['easting'], p, x_width, y_width)):
 				test[len(test.keys())]={'query':row['file'],'northing':row['northing'],'easting':row['easting']}
@@ -98,7 +98,7 @@ folders=[]
 runs_folder = "kaicheng/"
 all_folders=sorted(os.listdir(os.path.join(BASE_DIR,base_path,runs_folder)))
 #index_list=[5,6,7,9,10,11,12,13,14,15,16,17,18,19,22,24,31,32,33,38,39,43,44]
-index_list=[0,1,2,3]
+index_list=[0,1,2]
 print(len(index_list))
 for index in index_list:
 	folders.append(all_folders[index])

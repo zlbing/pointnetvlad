@@ -43,9 +43,9 @@ if not os.path.exists(RESULTS_FOLDER): os.mkdir(RESULTS_FOLDER)
 DATABASE_FILE= 'generating_queries/kaicheng_evaluation_database.pickle'
 QUERY_FILE= 'generating_queries/kaicheng_evaluation_query.pickle'
 
-LOG_DIR = 'models/baseline'
+LOG_DIR = 'models/refine'
 output_file= RESULTS_FOLDER +'results.txt'
-model_file= "model_baseline.ckpt"
+model_file= "model_refine.ckpt"
 
 DATABASE_SETS= get_sets_dict(DATABASE_FILE)
 #print(DATABASE_SETS)
@@ -110,7 +110,23 @@ def evaluate():
         sess = tf.Session(config=config)
 
         saver.restore(sess, os.path.join(LOG_DIR, model_file))
-        print("[evaluate] Model restored.")
+
+#        output_graph = os.path.join(LOG_DIR,"refine_model.pb")
+#        print("[evaluate] Model restored.")
+#        graph = tf.get_default_graph()
+#        input_graph_def = graph.as_graph_def()
+#        print("%d ops in the input graph.\n\n" % len(input_graph_def.node))
+#        output_node_names = "query_triplets/output"
+#        output_graph_def = tf.graph_util.convert_variables_to_constants(
+#            sess, # The session
+#            tf.get_default_graph().as_graph_def(), # input_graph_def is useful for retrieving the nodes 
+#            output_node_names.split(",")  
+#        )
+#        with tf.gfile.GFile(output_graph, "wb") as f:
+#            f.write(output_graph_def.SerializeToString())
+#        print("%d ops in the final graph.\n\n" % len(output_graph_def.node))
+#        [print(n.name) for n in output_graph_def.node]
+#        return
 
         ops = {'query': query,
                'positives': positives,
