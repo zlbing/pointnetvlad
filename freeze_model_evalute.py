@@ -7,9 +7,9 @@ from loading_pointclouds import *
 DATABASE_FILE= 'generating_queries/kaicheng_evaluation_database.pickle'
 DATABASE_SETS= get_sets_dict(DATABASE_FILE)
 NUM_POINTS = 4096
-BATCH_NUM_QUERIES = 2
-POSITIVES_PER_QUERY = 2
-NEGATIVES_PER_QUERY = 18
+BATCH_NUM_QUERIES = 1
+POSITIVES_PER_QUERY = 0
+NEGATIVES_PER_QUERY = 0
 
 def load_graph(frozen_graph_filename):
     # We parse the graph_def file
@@ -53,28 +53,26 @@ def get_latent_vectors(graph, dict_to_process):
     query = graph.get_tensor_by_name("Placeholder:0")
     positives = graph.get_tensor_by_name("Placeholder_1:0")
     negatives = graph.get_tensor_by_name("Placeholder_2:0")
-    eval_queries = graph.get_tensor_by_name("Placeholder_3:0")
     is_training_pl = graph.get_tensor_by_name("Placeholder_4:0")
     y = graph.get_tensor_by_name('query_triplets/Reshape_5:0')
     feed_dict={query:q1,
                positives:q2,
                negatives:q3,
-               eval_queries:q1,
-               is_training_pl: False}
+               is_training_pl: is_training}
 
     with tf.Session(graph=graph) as sess:
-        y_out = sess.run(y, feed_dict)
-        print(y_out)
+        q_output = sess.run(y, feed_dict)
+        print("q_output.shape=",q_output.shape)
+        #print(y_out)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--frozen_model_filename", default="models/refine/frozen_model.pb", type=str, help="Frozen model file to import")
+    parser.add_argument("--frozen_model_filename", default="models/refine/refine_model.pb", type=str, help="Frozen model file to import")
     args = parser.parse_args()
-    #加载已经将参数固化后的图
     graph = load_graph(args.frozen_model_filename)
 
-    # # We can list operations
-    # for op in graph.get_operations():
-    #     print(op.name,op.values())
+    # We can list operations
+    for op in graph.get_operations():
+        print(op.name,op.values())
 
     get_latent_vectors(graph, DATABASE_SETS[0])

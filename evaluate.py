@@ -15,6 +15,7 @@ from sklearn.neighbors import KDTree
 
 from visualize import *
 
+from freeze import *
 #params
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=1, help='GPU to use [default: GPU 1]')
@@ -116,21 +117,10 @@ def evaluate():
 
         saver.restore(sess, os.path.join(LOG_DIR, model_file))
 
+        ###freeze model
         output_graph = os.path.join(LOG_DIR,"refine_model.pb")
-        print("[evaluate] Model restored.")
-        graph = tf.get_default_graph()
-        input_graph_def = graph.as_graph_def()
-        print("%d ops in the input graph.\n\n" % len(input_graph_def.node))
         output_node_names = "query_triplets/Reshape_5"
-        output_graph_def = tf.graph_util.convert_variables_to_constants(
-            sess, # The session
-            tf.get_default_graph().as_graph_def(), # input_graph_def is useful for retrieving the nodes 
-            output_node_names.split(",")  
-        )
-        with tf.gfile.GFile(output_graph, "wb") as f:
-            f.write(output_graph_def.SerializeToString())
-        print("%d ops in the final graph.\n\n" % len(output_graph_def.node))
-        #[print(n.name) for n in output_graph_def.node]
+        freeze_model(sess,output_node_names,output_graph)
         return
 
         ops = {'query': query,
