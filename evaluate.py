@@ -40,8 +40,8 @@ DECAY_RATE = FLAGS.decay_rate
 RESULTS_FOLDER="results/"
 if not os.path.exists(RESULTS_FOLDER): os.mkdir(RESULTS_FOLDER)
 
-DATABASE_FILE= 'generating_queries/kaicheng_evaluation_database.pickle'
-QUERY_FILE= 'generating_queries/kaicheng_evaluation_query.pickle'
+DATABASE_FILE= 'generating_queries/yutong_evaluation_database.pickle'
+QUERY_FILE= 'generating_queries/yutong_evaluation_query.pickle'
 
 LOG_DIR = 'models/refine'
 output_file= RESULTS_FOLDER +'results.txt'
@@ -84,7 +84,12 @@ def evaluate():
             eval_queries= placeholder_inputs(EVAL_BATCH_SIZE, 1, NUM_POINTS)
 
             is_training_pl = tf.placeholder(tf.bool, shape=())
+            print("query=",query)
+            print("positives=",positives)
+            print("negatives=",negatives)
+            print("eval_queries=",eval_queries)
             print("is_training_pl=",is_training_pl)
+           
 
             batch = tf.Variable(0)
             bn_decay = get_bn_decay(batch)
@@ -111,22 +116,22 @@ def evaluate():
 
         saver.restore(sess, os.path.join(LOG_DIR, model_file))
 
-#        output_graph = os.path.join(LOG_DIR,"refine_model.pb")
-#        print("[evaluate] Model restored.")
-#        graph = tf.get_default_graph()
-#        input_graph_def = graph.as_graph_def()
-#        print("%d ops in the input graph.\n\n" % len(input_graph_def.node))
-#        output_node_names = "query_triplets/output"
-#        output_graph_def = tf.graph_util.convert_variables_to_constants(
-#            sess, # The session
-#            tf.get_default_graph().as_graph_def(), # input_graph_def is useful for retrieving the nodes 
-#            output_node_names.split(",")  
-#        )
-#        with tf.gfile.GFile(output_graph, "wb") as f:
-#            f.write(output_graph_def.SerializeToString())
-#        print("%d ops in the final graph.\n\n" % len(output_graph_def.node))
-#        [print(n.name) for n in output_graph_def.node]
-#        return
+        output_graph = os.path.join(LOG_DIR,"refine_model.pb")
+        print("[evaluate] Model restored.")
+        graph = tf.get_default_graph()
+        input_graph_def = graph.as_graph_def()
+        print("%d ops in the input graph.\n\n" % len(input_graph_def.node))
+        output_node_names = "query_triplets/Reshape_5"
+        output_graph_def = tf.graph_util.convert_variables_to_constants(
+            sess, # The session
+            tf.get_default_graph().as_graph_def(), # input_graph_def is useful for retrieving the nodes 
+            output_node_names.split(",")  
+        )
+        with tf.gfile.GFile(output_graph, "wb") as f:
+            f.write(output_graph_def.SerializeToString())
+        print("%d ops in the final graph.\n\n" % len(output_graph_def.node))
+        #[print(n.name) for n in output_graph_def.node]
+        return
 
         ops = {'query': query,
                'positives': positives,

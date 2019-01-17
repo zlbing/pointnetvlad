@@ -27,6 +27,7 @@ def forward(point_cloud, is_training, bn_decay=None):
     CLUSTER_SIZE=64
     OUTPUT_DIM=256
     point_cloud = tf.reshape(point_cloud, [batch_num_queries*num_pointclouds_per_query, num_points,3])
+    print("[forward pointcloud]=",point_cloud)
 
     with tf.variable_scope('transform_net1') as sc:
         input_transform = input_transform_net(point_cloud, is_training, bn_decay, K=3)
@@ -71,7 +72,7 @@ def forward(point_cloud, is_training, bn_decay=None):
 
     #normalize to have norm 1
     output = tf.nn.l2_normalize(output,1)
-    output =  tf.reshape(output,[batch_num_queries,num_pointclouds_per_query,OUTPUT_DIM],"output")
+    output =  tf.reshape(output,[batch_num_queries,num_pointclouds_per_query,OUTPUT_DIM])
 
     return output
 

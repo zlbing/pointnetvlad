@@ -340,6 +340,7 @@ def fully_connected(inputs,
     outputs = tf.nn.bias_add(outputs, biases)
      
     if bn:
+      print("[full_connected] batch_norm_for_fc")
       outputs = batch_norm_for_fc(outputs, is_training, bn_decay, 'bn')
 
     if activation_fn is not None:
