@@ -40,8 +40,8 @@ DECAY_RATE = FLAGS.decay_rate
 RESULTS_FOLDER="results/"
 if not os.path.exists(RESULTS_FOLDER): os.mkdir(RESULTS_FOLDER)
 
-DATABASE_FILE= 'generating_queries/yutong_evaluation_database.pickle'
-QUERY_FILE= 'generating_queries/yutong_evaluation_query.pickle'
+DATABASE_FILE= 'generating_queries/kaicheng_evaluation_database.pickle'
+QUERY_FILE= 'generating_queries/kaicheng_evaluation_query.pickle'
 
 LOG_DIR = 'models/refine'
 output_file= RESULTS_FOLDER +'results.txt'
